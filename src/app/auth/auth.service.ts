@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, catchError, Subject, tap, throwError } from "rxjs";
 import { User } from "./user.model";
+import { Router } from "@angular/router";
 
 export interface AuthResponseData {
     kind: string,
@@ -19,7 +20,13 @@ export class AuthService {
 
     user = new BehaviorSubject<User | null>(null);
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private route: Router) {
+        // setTimeout(() => {
+        //     this.user.next(null)
+        //     this.route.navigate(['/auth'])
+        //     console.log('autologout')
+        // }, 15000);
+     }
 
     signup(email: string, pass: string) {
         return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDKwFLAg85zsYJLe3BTvf5L_hqiDcGsy9w',
@@ -69,6 +76,11 @@ export class AuthService {
                 errorMes = 'Incorrect Email or Password'
         }
         return throwError(errorMes);
+    }
+
+    logout() {
+        this.user.next(null);
+        this.route.navigate(['/auth'])
     }
 
 }

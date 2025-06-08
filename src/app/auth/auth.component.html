@@ -21,7 +21,7 @@
         <button type="submit" class="btn btn-primary me-2" type="submit" [disabled]="!authForm.valid">
           {{ isLoginMode ? 'Login' : 'Sign Up' }}
         </button>
-        <button type="button" class="btn btn-primary" type="submit" (click)="onSwitchLogin()">
+        <button type="button" class="btn btn-primary" type="submit" (click)="onSwitchMode()">
           Switch to {{ isLoginMode ? 'Sign up' : 'Login' }}
         </button>
       </div>
