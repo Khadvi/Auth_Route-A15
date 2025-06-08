@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'],
+  standalone: false
 })
 export class AppComponent {
-  title = 'Authentications_Route-A15';
+  loadedFeature = 'recipe';
+
+  onNavigate(feature: any) {
+    this.loadedFeature = feature;
+  }
 }
