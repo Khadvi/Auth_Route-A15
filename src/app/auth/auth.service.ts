@@ -19,14 +19,9 @@ export interface AuthResponseData {
 export class AuthService {
 
     user = new BehaviorSubject<User | null>(null);
+    private userTimer: any;
 
-    constructor(private http: HttpClient, private route: Router) {
-        // setTimeout(() => {
-        //     this.user.next(null)
-        //     this.route.navigate(['/auth'])
-        //     console.log('autologout')
-        // }, 15000);
-     }
+    constructor(private http: HttpClient, private route: Router) {}
 
     signup(email: string, pass: string) {
         return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDKwFLAg85zsYJLe3BTvf5L_hqiDcGsy9w',
@@ -53,7 +48,25 @@ export class AuthService {
     private handleAuthentication(email: string, userId: string, token: string, expiresIn: number) {
         const expirationDate = new Date(new Date().getTime() + expiresIn * 1000)
         const user = new User(email, userId, token, expirationDate);
-        this.user.next(user)
+        this.user.next(user);
+        localStorage.setItem('userData', JSON.stringify(user));
+    }
+
+    autoLogin() {
+        const userDataRaw = localStorage.getItem('userData');
+        let userData : { email: string, id: string, _token: string, _tokenExpirationDate: string };
+        if(!userDataRaw) {
+            return;
+        }
+        userData = JSON.parse(userDataRaw);
+        
+        const loadedUser = new User(userData.email, userData.id, userData._token, new Date(userData._tokenExpirationDate));
+
+        if (loadedUser.token) {
+            this.autoLogout()
+            this.user.next(loadedUser);
+            console.log('Auto Login');
+        }
     }
 
     private errorHandler(errorRes: HttpErrorResponse) {
@@ -80,7 +93,20 @@ export class AuthService {
 
     logout() {
         this.user.next(null);
-        this.route.navigate(['/auth'])
+        this.route.navigate(['/auth']);
+        localStorage.removeItem('userData');
+        if(this.userTimer) {
+            clearTimeout(this.userTimer);
+        }
+        this.userTimer = null;
+    }
+
+    autoLogout() {
+        this.userTimer = setTimeout(() => {
+            this.user.next(null);
+            this.route.navigate(['/auth']);
+            console.log('Auto Logout');
+        }, 9000);
     }
 
 }
